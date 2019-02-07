@@ -1,4 +1,4 @@
-// https://play.golang.org/p/A5FuqHTD5Wj
+// https://play.golang.org/p/rS6SU9m5v2F
 package main
 
 import (
@@ -29,6 +29,7 @@ func main() {
 	fmt.Println("cap =", cap(s)) // cap = 7
 
 	// s = arr[::7]              // middle index required in 3-index slice
+	// s = arr[:5:]              // final index required in 3-index slice
 	// s = arr[5:7:5]            // invalid slice index: 7 > 5
 
 	s = arr[5:7:10]
@@ -45,4 +46,9 @@ func main() {
 	fmt.Println("s2 =", s2)       // s2 = [3 4]
 	fmt.Println("len =", len(s2)) // len = 2
 	fmt.Println("cap =", cap(s2)) // cap = 3
+
+	s = make([]int, 10)[:5]      // [0 0 0 0 0] same as make ([]int, 5, 10)
+	fmt.Println("s =", s)        // s = [0 0 0 0 0]
+	fmt.Println("len =", len(s)) // len = 5
+	fmt.Println("cap =", cap(s)) // cap = 10
 }
