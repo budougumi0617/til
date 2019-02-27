@@ -14,6 +14,7 @@ func TestBuilder(t *testing.T) {
 		"hoge",
 	}
 	var sb strings.Builder
+	// Reserve spaces.
 	sb.Grow(40)
 	for _, s := range in {
 		fmt.Fprint(&sb, s)
