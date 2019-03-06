@@ -2,7 +2,7 @@ package gomock
 
 // Client is interface for check gomock
 type Client interface {
-	Do(req string) (string, error)
+	Do(in string) (string, error)
 }
 
 // Foo is interface for check gomock
