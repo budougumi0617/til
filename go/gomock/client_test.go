@@ -79,12 +79,20 @@ func TestDoAndReturn3(t *testing.T) {
 				return "!!!!!", nil
 			}
 			return in, nil
-		})
-	// ここから！！！
+		}).AnyTimes() // By default, method is called only once.
+
 	if _, err := mc.Do(errin); err == nil {
 		t.Error("cannot get error")
 	}
 
+	in := "hogehoge"
+	if got, _ := mc.Do(in); got != in {
+		t.Errorf("want %s, but got %s\n", in, got)
+	}
+
+	if got, _ := mc.Do(specify); got != "!!!!!" {
+		t.Errorf("want %s, but got %s\n", "!!!!!", got)
+	}
 }
 
 func TestBySubTest(t *testing.T) {
