@@ -97,7 +97,8 @@ func TestDoAndReturn3(t *testing.T) {
 
 func TestBySubTest(t *testing.T) {
 	tests := []struct {
-		name      string
+		name string
+		// Inject rule to mock.
 		setClient func(*mock.MockClient, string)
 		in        string
 		want      string
@@ -138,19 +139,21 @@ func TestBySubTest(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-		mc := mock.NewMockClient(ctrl)
-		tt.setClient(mc, tt.in)
-		got, err := mc.Do(tt.in)
-		if !tt.wantErr && err != nil {
-			t.Fatal(err)
-		}
+			mc := mock.NewMockClient(ctrl)
+			tt.setClient(mc, tt.in)
+			got, err := mc.Do(tt.in)
+			if !tt.wantErr && err != nil {
+				t.Fatal(err)
+			}
 
-		if got != tt.want {
-			t.Errorf("want %#v, but got %#v\n", tt.want, got)
-		}
+			if got != tt.want {
+				t.Errorf("want %#v, but got %#v\n", tt.want, got)
+			}
+		})
 	}
 
 }
