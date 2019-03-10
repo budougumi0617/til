@@ -16,9 +16,9 @@ func TestReturn(t *testing.T) {
 	defer ctrl.Finish()
 	mc := mock.NewMockClient(ctrl)
 
-	mc.EXPECT().Do(in).Return("hoge", nil)
+	mc.EXPECT().Method(in).Return("hoge", nil)
 
-	if got, _ := mc.Do(in); got != want {
+	if got, _ := mc.Method(in); got != want {
 		t.Errorf("want %#v, but got %#v\n", want, got)
 	}
 
@@ -32,11 +32,11 @@ func TestDoAndReturn(t *testing.T) {
 	defer ctrl.Finish()
 	mc := mock.NewMockClient(ctrl)
 
-	mc.EXPECT().Do(in).DoAndReturn(
+	mc.EXPECT().Method(in).DoAndReturn(
 		func(in string) (string, error) {
 			return fmt.Sprint(in, " modified in mock"), nil
 		})
-	if got, _ := mc.Do(in); got != want {
+	if got, _ := mc.Method(in); got != want {
 		t.Errorf("want %#v, but got %#v\n", want, got)
 	}
 
@@ -50,12 +50,12 @@ func TestDoAndReturn2(t *testing.T) {
 	defer ctrl.Finish()
 	mc := mock.NewMockClient(ctrl)
 
-	mc.EXPECT().Do(in).DoAndReturn(
+	mc.EXPECT().Method(in).DoAndReturn(
 		func(in string) (string, error) {
 			return "", fmt.Errorf("%s", in)
 		})
 
-	if _, err := mc.Do(in); err == nil {
+	if _, err := mc.Method(in); err == nil {
 		t.Error("cannot get error")
 	}
 
@@ -70,7 +70,7 @@ func TestDoAndReturn3(t *testing.T) {
 	defer ctrl.Finish()
 	mc := mock.NewMockClient(ctrl)
 
-	mc.EXPECT().Do(gomock.Any()).DoAndReturn(
+	mc.EXPECT().Method(gomock.Any()).DoAndReturn(
 		func(in string) (string, error) {
 			switch in {
 			case errin:
@@ -81,16 +81,16 @@ func TestDoAndReturn3(t *testing.T) {
 			return in, nil
 		}).AnyTimes() // By default, method is called only once.
 
-	if _, err := mc.Do(errin); err == nil {
+	if _, err := mc.Method(errin); err == nil {
 		t.Error("cannot get error")
 	}
 
 	in := "hogehoge"
-	if got, _ := mc.Do(in); got != in {
+	if got, _ := mc.Method(in); got != in {
 		t.Errorf("want %s, but got %s\n", in, got)
 	}
 
-	if got, _ := mc.Do(specify); got != "!!!!!" {
+	if got, _ := mc.Method(specify); got != "!!!!!" {
 		t.Errorf("want %s, but got %s\n", "!!!!!", got)
 	}
 }
@@ -107,7 +107,7 @@ func TestBySubTest(t *testing.T) {
 		{
 			name: "Return",
 			setClient: func(mc *mock.MockClient, in string) {
-				mc.EXPECT().Do(in).Return("hoge", nil)
+				mc.EXPECT().Method(in).Return("hoge", nil)
 			},
 			in:      "any value",
 			want:    "hoge",
@@ -116,7 +116,7 @@ func TestBySubTest(t *testing.T) {
 		{
 			name: "DoAndReturn",
 			setClient: func(mc *mock.MockClient, in string) {
-				mc.EXPECT().Do(in).DoAndReturn(
+				mc.EXPECT().Method(in).DoAndReturn(
 					func(in string) (string, error) {
 						return in, nil
 					})
@@ -128,7 +128,7 @@ func TestBySubTest(t *testing.T) {
 		{
 			name: "DoAndReturn2",
 			setClient: func(mc *mock.MockClient, in string) {
-				mc.EXPECT().Do(in).DoAndReturn(
+				mc.EXPECT().Method(in).DoAndReturn(
 					func(in string) (string, error) {
 						return "", fmt.Errorf("%s", in)
 					})
@@ -145,7 +145,7 @@ func TestBySubTest(t *testing.T) {
 
 			mc := mock.NewMockClient(ctrl)
 			tt.setClient(mc, tt.in)
-			got, err := mc.Do(tt.in)
+			got, err := mc.Method(tt.in)
 			if !tt.wantErr && err != nil {
 				t.Fatal(err)
 			}

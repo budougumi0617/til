@@ -32,19 +32,19 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// Do mocks base method
-func (m *MockClient) Do(arg0 string) (string, error) {
+// Method mocks base method
+func (m *MockClient) Method(arg0 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Do", arg0)
+	ret := m.ctrl.Call(m, "Method", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Do indicates an expected call of Do
-func (mr *MockClientMockRecorder) Do(arg0 interface{}) *gomock.Call {
+// Method indicates an expected call of Method
+func (mr *MockClientMockRecorder) Method(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockClient)(nil).Do), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Method", reflect.TypeOf((*MockClient)(nil).Method), arg0)
 }
 
 // MockFoo is a mock of Foo interface
