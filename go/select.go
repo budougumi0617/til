@@ -6,6 +6,36 @@ import (
 )
 
 func main() {
+	sample2()
+}
+
+func sample2() {
+	ch1 := make(chan int)
+	ch2 := make(chan int)
+	done := make(chan struct{})
+
+	f := func() int {
+		fmt.Println("called f")
+		return 1
+	}
+
+	go func() {
+		fmt.Printf("f return = %d\n", <-ch1)
+		done <- struct{}{}
+	}()
+
+	for {
+		select {
+		case ch1 <- f():
+		case ch2 <- f():
+		case <-done:
+			fmt.Println("done")
+			return
+		}
+	}
+}
+
+func sample1() {
 	ch := make(chan int)
 	cont := make(chan struct{})
 	done := make(chan struct{})
