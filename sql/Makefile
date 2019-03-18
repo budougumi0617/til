@@ -1,4 +1,4 @@
-.PHONY: start stop
+.PHONY: start stop mysql
 
 start:
 	docker container run --rm -d -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
