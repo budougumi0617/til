@@ -1,12 +1,19 @@
-.PHONY: start stop
+.PHONY: help start stop mysql
 
-start:
+# 引数がないときはusageを表示する
+.DEFAULT_GOAL := help
+
+start: ## Start MySQL Conatainer
 	docker container run --rm -d -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
 		-p 43306:3306 --name mysql_til kakakakakku/mysql-world-database:8.0
 
-stop:
+stop: ## Terminate MySQL Container
 	docker container stop mysql_til
 
-mysql:
+mysql: ## Connect to MySQL
 	mysql -h 127.0.0.1 --port 43306 -uroot -D world
+
+# 各コマンドについたコメントを表示する
+help: ## Show options
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
