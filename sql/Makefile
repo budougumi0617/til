@@ -13,6 +13,14 @@ stop: ## Terminate MySQL Container
 mysql: ## Connect to MySQL
 	mysql -h 127.0.0.1 --port 43306 -uroot -D world
 
+CMD='show tables;'
+exec: ## Execute query on MySQL ex: make exec CMD="show columns from country"
+	mysql -h 127.0.0.1 --port 43306 -uroot -D world -e "${CMD}"
+
+FILE=''
+run: ## Run quey from file on MySQL ex: make run FILE=./count_city.sql
+	mysql -h 127.0.0.1 --port 43306 -uroot -D world < ${FILE}
+
 # 各コマンドについたコメントを表示する
 help: ## Show options
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
