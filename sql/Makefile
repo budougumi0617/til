@@ -1,4 +1,4 @@
-.PHONY: help start stop mysql
+.PHONY: help start stop mysql exec run
 
 # 引数がないときはusageを表示する
 .DEFAULT_GOAL := help
