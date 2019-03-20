@@ -5,21 +5,21 @@
 
 start: ## Start MySQL Conatainer
 	docker container run --rm -d -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-		-p 43306:3306 --name mysql_til kakakakakku/mysql-world-database:8.0
+		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
 
 stop: ## Terminate MySQL Container
 	docker container stop mysql_til
 
 mysql: ## Connect to MySQL
-	mysql -h 127.0.0.1 --port 43306 -uroot -D world
+	mysql -h 127.0.0.1 --port 43306 -uroot -D sakila
 
-CMD='show tables;'
+CMD=show tables;
 exec: ## Execute query on MySQL ex: make exec CMD="show columns from country"
-	mysql -h 127.0.0.1 --port 43306 -uroot -D world -e "${CMD}"
+	mysql -h 127.0.0.1 --port 43306 -uroot -D sakila -e "${CMD}"
 
 FILE=''
 run: ## Run quey from file on MySQL ex: make run FILE=./count_city.sql
-	mysql -h 127.0.0.1 --port 43306 -uroot -D world < ${FILE}
+	mysql -h 127.0.0.1 --port 43306 -uroot -D sakila < ${FILE}
 
 # 各コマンドについたコメントを表示する
 help: ## Show options
