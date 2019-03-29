@@ -1,0 +1,11 @@
+development:
+    dialect: mysql
+    dir: migrations
+    datasource: root:@tcp(127.0.0.1:43306)/sqlx_development?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true
+
+# Dummy setting
+production:
+    dialect: postgres
+    dir: migrations/postgres
+    datasource: dbname=myapp sslmode=disable
+    table: migrations
