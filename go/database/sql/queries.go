@@ -51,3 +51,32 @@ func (repo *Repo) FindUser(ctx context.Context, id int64) (*User, error) {
 	}
 	return u, nil
 }
+
+// AddUser adds user to repository.
+func (repo *Repo) AddUser(ctx context.Context, u *User) error {
+	conn, err := repo.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	now := time.Now()
+	res, err := conn.ExecContext(ctx, `
+        INSERT INTO user (name, email, created_at, updated_at)
+        VALUES (?, ?, ?, ?)
+    `, u.Name, u.Email, now, now,
+	)
+	if err != nil {
+		return err
+	}
+
+	id, err := res.LastInsertId() // 挿入した行のIDを返却
+	if err != nil {
+		return err
+	}
+	u.ID = id
+	u.CreatedAt = now
+	u.UpdatedAt = now
+
+	return nil
+}
