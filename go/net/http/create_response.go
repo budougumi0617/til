@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"bytes"
@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"testing"
 )
 
-func main() {
+func TestCreateResponse(t *testing.T) {
 	// JSON string
 	d := "{\"test\": \"Hello world\"}"
 	resp := &http.Response{
@@ -26,7 +27,9 @@ func main() {
 	}
 
 	// Decode JSON from stream.
-	json.NewDecoder(resp.Body).Decode(&body)
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
 	fmt.Printf("body = %+v\n", body)
 	// Ignore Upper/Lower
 	fmt.Printf("location = %+v\n", resp.Header.Get("location"))

@@ -1,11 +1,11 @@
-package main
+package http
 
 import (
 	"io"
 	"net/http"
 )
 
-func main() {
+func start() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/sendstrailers", func(w http.ResponseWriter, req *http.Request) {
 		// Before any call to WriteHeader or Write, declare
