@@ -1,7 +1,7 @@
 package testing
 
 func removeDuplicate(args []string) []string {
-	m := make(map[string]bool, len(args)
+	m := make(map[string]bool, len(args))
 	for _, a := range args {
 		m[a] = true
 	}
@@ -20,6 +20,6 @@ func removeDuplicateOld(args []string) []string {
 			encountered[args[i]] = true
 			results = append(results, args[i])
 		}
-		return results
 	}
+	return results
 }
