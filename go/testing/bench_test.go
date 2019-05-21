@@ -1,6 +1,10 @@
 package testing
 
-import "testing"
+import (
+	"fmt"
+	"strconv"
+	"testing"
+)
 
 // Distinct returns distinct array.
 func Distinct(args []string) []string {
@@ -31,26 +35,40 @@ func DistinctOld(args []string) []string {
 // https://golang.org/pkg/testing/#hdr-Benchmarks
 
 var benchmarks = []struct {
-	name  string
-	array []string
+	count string
 }{
 	{
-		name:  "Simple",
-		array: []string{"hoge", "hoge2", "hoge3", "hoge4", "hoge5"},
+		count: "10",
 	},
 	{
-		name:  "Dup",
-		array: []string{"hoge", "hoge2", "hoge3", "hoge4", "hoge5", "hoge", "hoge2", "hoge3", "hoge4", "hoge5"},
+		count: "100",
 	},
+	{
+		count: "10000",
+	},
+}
+
+func buildArray(c string) []string {
+	var a []string
+	n, _ := strconv.Atoi(c)
+	for i := 0; i < n; i++ {
+		e := "hoge" + c
+		for j := 0; j < n; j++ {
+			a = append(a, e)
+		}
+	}
+	return a
 }
 
 // BenchmarkDistinct checks performance.
 func BenchmarkDistinct(b *testing.B) {
-	// b.ResetTimer()
 	for _, bm := range benchmarks {
-		b.Run(bm.name, func(b *testing.B) {
+		b.Run(bm.count, func(b *testing.B) {
+			a := buildArray(bm.count)
+			fmt.Printf("len(a) = %+v\n", len(a))
+			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				Distinct(bm.array)
+				Distinct(a)
 			}
 		})
 	}
@@ -58,11 +76,13 @@ func BenchmarkDistinct(b *testing.B) {
 
 // BenchmarkDistinctOld checks performance.
 func BenchmarkDistinctOld(b *testing.B) {
-	// b.ResetTimer()
 	for _, bm := range benchmarks {
-		b.Run(bm.name, func(b *testing.B) {
+		b.Run(bm.count, func(b *testing.B) {
+			a := buildArray(bm.count)
+			fmt.Printf("len(a) = %+v\n", len(a))
+			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				DistinctOld(bm.array)
+				DistinctOld(a)
 			}
 		})
 	}
