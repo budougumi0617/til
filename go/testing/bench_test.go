@@ -78,28 +78,26 @@ func buildArray(n int) []string {
 	return a
 }
 
+func bench(n int, d func([]string) []string) func(*testing.B) {
+	return func(b *testing.B) {
+		a := buildArray(n)
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			d(a)
+		}
+	}
+}
+
 // BenchmarkDistinct checks performance.
 func BenchmarkDistinct(b *testing.B) {
 	for _, bm := range benchmarks {
-		b.Run(bm.count, func(b *testing.B) {
-			a := buildArray(bm.n)
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				Distinct(a)
-			}
-		})
+		b.Run(bm.count, bench(bm.n, Distinct))
 	}
 }
 
 // BenchmarkDistinctOld checks performance.
 func BenchmarkDistinctOld(b *testing.B) {
 	for _, bm := range benchmarks {
-		b.Run(bm.count, func(b *testing.B) {
-			a := buildArray(bm.n)
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				DistinctOld(a)
-			}
-		})
+		b.Run(bm.count, bench(bm.n, DistinctOld))
 	}
 }
