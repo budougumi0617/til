@@ -52,18 +52,22 @@ ok      github.com/budougumi0617/til/go/testing 54.878s
 var benchmarks = []struct {
 	count string
 	n     int
+	algo  func(int) []string
 }{
 	{
 		count: "small",
 		n:     10,
+		algo:  buildArray,
 	},
 	{
 		count: "large",
 		n:     100,
+		algo:  buildArray,
 	},
 	{
 		count: "fuge",
 		n:     10000,
+		algo:  buildArray,
 	},
 }
 
@@ -78,9 +82,9 @@ func buildArray(n int) []string {
 	return a
 }
 
-func bench(n int, d func([]string) []string) func(*testing.B) {
+func bench(n int, algo func(int) []string, d func([]string) []string) func(*testing.B) {
 	return func(b *testing.B) {
-		a := buildArray(n)
+		a := algo(n)
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			d(a)
@@ -91,13 +95,13 @@ func bench(n int, d func([]string) []string) func(*testing.B) {
 // BenchmarkDistinct checks performance.
 func BenchmarkDistinct(b *testing.B) {
 	for _, bm := range benchmarks {
-		b.Run(bm.count, bench(bm.n, Distinct))
+		b.Run(bm.count, bench(bm.n, bm.algo, Distinct))
 	}
 }
 
 // BenchmarkDistinctOld checks performance.
 func BenchmarkDistinctOld(b *testing.B) {
 	for _, bm := range benchmarks {
-		b.Run(bm.count, bench(bm.n, DistinctOld))
+		b.Run(bm.count, bench(bm.n, bm.algo, DistinctOld))
 	}
 }
