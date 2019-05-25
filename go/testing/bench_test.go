@@ -55,26 +55,41 @@ var benchmarks = []struct {
 	algo  func(int) []string
 }{
 	{
-		count: "small",
+		count: "DenseSmall",
 		n:     10,
-		algo:  buildArray,
+		algo:  buildDenseArray,
 	},
 	{
-		count: "large",
+		count: "DenseLarge",
 		n:     100,
-		algo:  buildArray,
+		algo:  buildDenseArray,
 	},
 	{
-		count: "fuge",
+		count: "DenseFuge",
 		n:     10000,
-		algo:  buildArray,
+		algo:  buildDenseArray,
+	},
+	{
+		count: "SparseSmall",
+		n:     10,
+		algo:  buildSparseArray,
+	},
+	{
+		count: "SparseLarge",
+		n:     100,
+		algo:  buildSparseArray,
+	},
+	{
+		count: "SparseFuge",
+		n:     10000,
+		algo:  buildSparseArray,
 	},
 }
 
-func buildArray(n int) []string {
+func buildDenseArray(n int) []string {
 	var a []string
 	for i := 0; i < n; i++ {
-		e := "hoge" + strconv.Itoa(n)
+		e := "hoge" + strconv.Itoa(i)
 		for j := 0; j < n; j++ {
 			a = append(a, e)
 		}
@@ -82,12 +97,23 @@ func buildArray(n int) []string {
 	return a
 }
 
+func buildSparseArray(n int) []string {
+	var a []string
+	nn := n * n
+	for i := 0; i < nn; i++ {
+		e := "hoge" + strconv.Itoa(i)
+		a = append(a, e)
+	}
+	return a
+}
+
 func bench(n int, algo func(int) []string, d func([]string) []string) func(*testing.B) {
 	return func(b *testing.B) {
+		var r []string
 		a := algo(n)
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			d(a)
+			r = d(a)
 		}
 	}
 }
