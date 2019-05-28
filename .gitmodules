@@ -1,3 +1,6 @@
 [submodule "go/book/cig"]
 	path = go/book/cig
 	url = git@github.com:budougumi0617/cig.git
+[submodule "go/book/gopl"]
+	path = go/book/gopl
+	url = git@github.com:budougumi0617/gopl.git
