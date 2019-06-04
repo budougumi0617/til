@@ -52,3 +52,11 @@ func main() {
 	fmt.Println("len =", len(s)) // len = 5
 	fmt.Println("cap =", cap(s)) // cap = 10
 }
+
+func initSlice() {
+	ss := [][]string{
+		{"foo", "foo"},
+		{"bar", "bar"},
+	}
+	fmt.Printf("ss = %+v\n", ss)
+}
