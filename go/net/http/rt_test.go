@@ -9,6 +9,16 @@ import (
 	"testing"
 )
 
+type internal struct {
+	called bool
+	base   ghttp.RoundTripper
+}
+
+func (i *internal) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
+	i.called = true
+	return i.base.RoundTrip(req)
+}
+
 type transport struct {
 	Base ghttp.RoundTripper
 }
@@ -28,11 +38,18 @@ func (t *transport) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
 
 func TestRoundTripper(t *testing.T) {
 	// TODO write test
-
+	cli := ghttp.Client{
+		Transport: &transport{
+			Base: &internal{
+				base: ghttp.DefaultTransport,
+			},
+		},
+	}
+	cli.Do(nil)
 }
 
 // https://medium.com/@timakin/go-api-testing-173b97fb23ec
-func TryRequest(t *testing.T, desc, method, path, payload string, mux *ghttp.ServeMux, wantCode int, wantBody string) {
+func TryRequest(t *testing.T, desc, method, path, payload string, mux *ghttp.ServeMux, wantCode int, wantBody string, c *ghttp.Client) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 
@@ -42,8 +59,6 @@ func TryRequest(t *testing.T, desc, method, path, payload string, mux *ghttp.Ser
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-
-	c := http.DefaultClient
 
 	resp, err := c.Do(req)
 	if err != nil {
