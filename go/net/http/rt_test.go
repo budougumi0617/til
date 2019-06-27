@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	ghttp "net/http"
@@ -11,12 +12,12 @@ import (
 
 type internal struct {
 	called bool
-	base   ghttp.RoundTripper
 }
 
 func (i *internal) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
 	i.called = true
-	return i.base.RoundTrip(req)
+	base := ghttp.DefaultTransport
+	return base.RoundTrip(req)
 }
 
 type transport struct {
@@ -38,14 +39,20 @@ func (t *transport) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
 
 func TestRoundTripper(t *testing.T) {
 	// TODO write test
-	cli := ghttp.Client{
+	cli := &ghttp.Client{
 		Transport: &transport{
-			Base: &internal{
-				base: ghttp.DefaultTransport,
-			},
+			Base: &internal{},
 		},
 	}
-	cli.Do(nil)
+	p := "/example"
+	mux := http.NewServeMux()
+	mux.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Hello World")
+	})
+	pl := "payload"
+	TryRequest(t, "check RoundTripper", "GET", p, pl, mux, http.StatusOK, "want body", cli)
+
 }
 
 // https://medium.com/@timakin/go-api-testing-173b97fb23ec
