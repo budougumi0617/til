@@ -38,20 +38,24 @@ func (t *transport) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
 }
 
 func TestRoundTripper(t *testing.T) {
-	// TODO write test
+	rt := &internal{}
 	cli := &ghttp.Client{
 		Transport: &transport{
-			Base: &internal{},
+			Base: rt,
 		},
 	}
 	p := "/example"
 	mux := http.NewServeMux()
+	b := "want body"
 	mux.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "Hello World")
+		fmt.Fprintf(w, b)
 	})
 	pl := "payload"
-	TryRequest(t, "check RoundTripper", "GET", p, pl, mux, http.StatusOK, "want body", cli)
+	TryRequest(t, "check RoundTripper", "GET", p, pl, mux, http.StatusOK, b, cli)
+	if !rt.called {
+		t.Fatal("interior RoundTripper is not called")
+	}
 
 }
 
