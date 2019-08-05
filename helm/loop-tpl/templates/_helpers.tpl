@@ -43,3 +43,10 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+
+{{/*
+Mapper Template
+*/}}
+{{- define "loop-tpl.mytemplate" -}}
+  {{ .drink }}: {{ .name | quote }}
+{{- end -}}

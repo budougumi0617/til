@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: {{ .Release.Name }}-configmap
+data:
+  myvalue: "Hello World"
+  {{- /* include allows only a valiable */ -}}
+  {{- range $drink := .Values.favorite.drinks }}
+  {{- $map := dict "drink" $drink "name" $.Release.Name }}
+  {{- include "loop-tpl.mytemplate" $map | nindent 2 }}
+  {{- end }}

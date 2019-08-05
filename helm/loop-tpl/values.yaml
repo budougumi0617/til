@@ -48,3 +48,8 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+favorite:
+  drinks:
+    - coffee
+    - tea
