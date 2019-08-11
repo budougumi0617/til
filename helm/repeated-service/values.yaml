@@ -48,3 +48,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+servers:
+  - alice
+  - bob
+  - charlie
+  - dave

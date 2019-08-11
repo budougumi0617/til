@@ -1,16 +1,21 @@
+{{- range $i, $server := .Values.servers -}}
+{{- if ne $i 0 }}
+---
+{{- end }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "repeated-service.fullname" . }}
+  name: = {{ $server }}-{{ include "repeated-service.fullname" $ }}
   labels:
-{{ include "repeated-service.labels" . | indent 4 }}
+{{ include "repeated-service.labels" $ | indent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ $.Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ $.Values.service.port }}
       targetPort: http
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/name: {{ include "repeated-service.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ $server }}-{{ include "repeated-service.name" $ }}
+    app.kubernetes.io/instance: {{ $server }}-{{ $.Release.Name }}
+{{- end -}}
