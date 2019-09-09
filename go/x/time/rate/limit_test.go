@@ -36,6 +36,7 @@ func (lc *LimitConn) reserve(i int) {
 	if i%2 == 0 {
 		log.Printf("reserve: cancel %d!\n", i)
 		r.Cancel()
+		return
 	}
 	if !r.OK() {
 		// Not allowed to act! Did you remember to set lim.burst to be > 0 ?
