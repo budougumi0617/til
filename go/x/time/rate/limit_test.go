@@ -49,7 +49,7 @@ func (lc *LimitConn) reserve(i int) {
 var (
 	n = 10            // 発生するアクション数
 	r = rate.Limit(2) // 1秒間に増加するトークン数
-	m = 5             // 最大トークン数
+	b = 5             // 最大トークン数
 )
 
 // === RUN   TestWait
@@ -68,7 +68,7 @@ func TestWait(t *testing.T) {
 	log.SetFlags(log.Ltime)
 
 	lc := &LimitConn{
-		lim: rate.NewLimiter(r, m),
+		lim: rate.NewLimiter(r, b),
 	}
 	var wg sync.WaitGroup
 
@@ -99,7 +99,7 @@ func TestAllow(t *testing.T) {
 	log.SetFlags(log.Ltime)
 
 	lc := &LimitConn{
-		lim: rate.NewLimiter(r, m),
+		lim: rate.NewLimiter(r, b),
 	}
 	var wg sync.WaitGroup
 
@@ -136,7 +136,7 @@ func TestReserve(t *testing.T) {
 	log.SetFlags(log.Ltime)
 
 	lc := &LimitConn{
-		lim: rate.NewLimiter(r, m),
+		lim: rate.NewLimiter(r, b),
 	}
 	var wg sync.WaitGroup
 
