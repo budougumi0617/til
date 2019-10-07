@@ -7,3 +7,6 @@
 [submodule "go/book/gsp"]
 	path = go/book/gsp
 	url = git@github.com:budougumi0617/gsp.git
+[submodule "php/cakephp_tutorial"]
+	path = php/cakephp_tutorial
+	url = git@github.com:budougumi0617/cakephp_tutorial.git
