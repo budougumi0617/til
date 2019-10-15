@@ -17,7 +17,7 @@ flk: ## Execute pyflakes
 lint: pcs pds flk ## Execute all linter
 
 test: ## Execute pytest
-	@pipenv run pytest
+	@PYTHONPATH=./ pipenv run pytest
 
 
 help: ## Show options

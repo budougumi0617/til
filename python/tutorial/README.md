@@ -8,3 +8,5 @@ https://speakerdeck.com/hgsgtk/python-api-ci-test
 ## Execute test
 - https://pleiades.io/help/pycharm/pytest.html
 
+## which executable by Pyenv
+- https://dackdive.hateblo.jp/entry/2018/05/16/100000
