@@ -136,3 +136,6 @@ dmypy.json
 
 # Environment file
 .envrc
+
+#  -------------- For Terraform ---------------
+terraform.tfstate
