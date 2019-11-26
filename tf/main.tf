@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
 // 変数宣言。実行時に-var 'example_instance_type=t3.nano'というように変更できる。
 variable "example_instance_type" {
   default = "t3.micro"
@@ -39,7 +43,7 @@ resource "aws_instance" "example" {
     systemctl start httpd.service
 EOF
 }
- 
+
 /**
  * apply時に実行結果の最後に結果が表示される。
  *
