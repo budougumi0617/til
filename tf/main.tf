@@ -50,6 +50,8 @@ resource "aws_security_group" "example_ec2" {
 resource "aws_instance" "example" {
   ami           = data.aws_ami.recent_amazon_linux_2.image_id
   instance_type = var.example_instance_type
+  // 条件分岐も利用できる
+  // instance_type = var.env == "prod" ? "m5.large" : "t3.micro"
   // instance_type = locals.example_instance_type
   vpc_security_group_ids = [aws_security_group.example_ec2.id]
 
