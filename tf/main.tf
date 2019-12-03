@@ -59,6 +59,8 @@ resource "aws_instance" "example" {
   tags = {
     Name = "example"
   }
+  // 組み込み関数を利用してファイルを読み込む例
+  // user_data = file("./user_data.sh")
   user_data = <<EOF
     #!/bin/bash
     yum install -y httpd
