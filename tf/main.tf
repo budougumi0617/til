@@ -84,6 +84,15 @@ resource "aws_instance" "example_template" {
   user_data = data.template_file.httpd_user_data.rendered
 }
 
+module "dev_server" {
+  source = "./http_server"
+  instance_type = "t3.micto"
+}
+
+output "public_dns" {
+  value = module.dev_server.public_dns
+}
+
 /**
  * apply時に実行結果の最後に結果が表示される。
  *
