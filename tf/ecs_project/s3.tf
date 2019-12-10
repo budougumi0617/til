@@ -1,6 +1,6 @@
 # 非公開S3バケット
 resource "aws_s3_bucket" "private" {
-  bucket = "budougumi0617-pragmatic-terraform-on-aws"
+  bucket = "private-budougumi0617-pragmatic-terraform-on-aws"
 
   versioning {
     enabled = true
@@ -29,7 +29,7 @@ resource "aws_s3_bucket_public_access_block" "private" {
 
 # 公開用S3バケット
 resource "aws_s3_bucket" "public" {
-  bucket = "public-pragmatic-terraform-on-aws"
+  bucket = "public-budougumi0617-pragmatic-terraform-on-aws"
   acl    = "public-read" # デフォルトはprivateなので明示的に公開する
 
   cors_rule {
@@ -45,7 +45,7 @@ resource "aws_s3_bucket" "public" {
 
 # ログローテション用バケット。ALB用のアクセスロブ用バケット。
 resource "aws_s3_bucket" "alb_log" {
-  bucket = "alb-log-pragmatic-terraform-on-aws"
+  bucket = "alb-log-budougumi0617-pragmatic-terraform-on-aws"
 
   # ライフサイクルを設定することで、無尽蔵に増え続けるのを防ぐ。
   lifecycle_rule {
