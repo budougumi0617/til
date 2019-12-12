@@ -5,9 +5,9 @@ import "fmt"
 type TokenType string
 
 const (
-	OP_ADD TokenType = "add"
-	SPACE  TokenType = "space"
-	NUM    TokenType = "number"
+	OP_ADD = TokenType("add")
+	SPACE  = TokenType("space")
+	NUM    = TokenType("number")
 )
 
 // Token is...

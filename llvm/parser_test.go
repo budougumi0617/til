@@ -6,33 +6,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-type TokenType string
-
-const (
-	OP_ADD TokenType = "add"
-	SPACE  TokenType = "space"
-	NUM    TokenType = "number"
-)
-
-// Token is...
-type Token struct {
-	Value string
-	Type  TokenType
-}
-
-// Token is...
-type Token struct {
-	Value string
-	Type  TokenType
-}
-
-func parse(txt string) []Token {
-	var ts []Token
-	// ここで頑張る
-
-	return ts
-}
-
 func TestParse(t *testing.T) {
 	want := []Token{
 		{Value: "1", Type: NUM},
