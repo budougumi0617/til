@@ -1,6 +1,7 @@
 .DS_Store
 .swp
 .idea/
+.vscode/
 
 vendor/
 
@@ -132,3 +133,11 @@ dmypy.json
 .pyre/
 
 #  -------------- For Python ---------------
+
+
+# Environment file
+.envrc
+
+#  -------------- For Terraform ---------------
+terraform.tfstate
+terraform.tfstate.backup
