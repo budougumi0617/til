@@ -9,6 +9,10 @@ resource "aws_vpc" "example" {
   }
 }
 
+# --------------------------------------
+# public network settings
+# --------------------------------------
+
 resource "aws_subnet" "public" {
   vpc_id     = aws_vpc.example.id
   cidr_block = "10.0.0.0/24"
@@ -30,13 +34,45 @@ resource "aws_route_table" "public" {
 
 # インターネットゲートウェイ経由でインターネットへデータを流すためにデフォルトルートを指定する。
 resource "aws_route" "public" {
-  route_table_id = aws_route_table.public.id
-  gateway_id = aws_internet_gateway.example.id
+  route_table_id         = aws_route_table.public.id
+  gateway_id             = aws_internet_gateway.example.id
   destination_cidr_block = "0.0.0.0/0"
 }
 
 # ルートテーブルとサブネットの関連付け。
 resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
-  subnet_id = aws_subnet.public.id
+  subnet_id      = aws_subnet.public.id
+}
+
+# --------------------------------------
+# private network setting
+# --------------------------------------
+
+# プライベートサブネット。パブリックサブネットと異なるCIDRブロックを指定する。
+resource "aws_subnet" "private" {
+  vpc_id     = aws_vpc.example.id
+  cidr_block = "10.0.64.0/24"
+  # Specify true to indicate that instances launched into the subnet should be assigned a public IP address.
+  map_public_ip_on_launch = false
+  availability_zone       = "ap-northeast-1a"
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.example.id
+}
+
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
+}
+
+# NATゲートウェイ。プライベートネットワークからインターネットにアクセスする用。
+# NATゲートウェイを利用するために必要なEIP（Elastic IP Address）
+# これを使うと、通常起動するたびに動的に変わるIPを固定できる。
+resource "aws_eip" "nat_gateway" {
+  vpc = true
+  depends_on = [
+    aws_internet_gateway.example
+  ]
 }
