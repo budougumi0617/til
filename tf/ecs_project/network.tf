@@ -21,3 +21,22 @@ resource "aws_subnet" "public" {
 resource "aws_internet_gateway" "example" {
   vpc_id = aws_vpc.example.id
 }
+
+# ルーティングテーブルを定義する。
+# ルートテーブルではVPC内の通信を有効にするため、ローカルルートが自動生成される。Terraformからは制御できない。
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.example.id
+}
+
+# インターネットゲートウェイ経由でインターネットへデータを流すためにデフォルトルートを指定する。
+resource "aws_route" "public" {
+  route_table_id = aws_route_table.public.id
+  gateway_id = aws_internet_gateway.example.id
+  destination_cidr_block = "0.0.0.0/0"
+}
+
+# ルートテーブルとサブネットの関連付け。
+resource "aws_route_table_association" "public" {
+  route_table_id = aws_route_table.public.id
+  subnet_id = aws_subnet.public.id
+}
