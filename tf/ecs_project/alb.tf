@@ -29,7 +29,9 @@ output "alb_dns_name" {
   value = aws_lb.example.dns_name
 }
 
+# ---------------------------------------
 # ALB用のセキュリティグループ
+# ---------------------------------------
 module "http_sg" {
   source      = "./security_group"
   name        = "http-sg"
@@ -52,4 +54,24 @@ module "http_redirect_sg" {
   vpc_id      = aws_vpc.example.id
   port        = 8080
   cidr_blocks = ["0.0.0.0/0"]
+}
+
+
+# ---------------------------------------
+# リスナー
+# ---------------------------------------
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.example.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "これは『HTTP』です"
+      status_code  = "200"
+    }
+  }
 }
