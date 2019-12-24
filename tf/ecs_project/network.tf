@@ -13,12 +13,19 @@ resource "aws_vpc" "example" {
 # public network settings
 # --------------------------------------
 
-resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.example.id
-  cidr_block = "10.0.0.0/24"
-  # サブネットで起動したインスタンスにパブリックIPアドレスを自動的に割り当ててくれる。
-  map_public_ip_on_launch = true
+resource "aws_subnet" "public_0" {
+  vpc_id                  = aws_vpc.example.id
+  cidr_block              = "10.0.1.0/24"
   availability_zone       = "ap-northeast-1a"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "public_1" {
+  vpc_id     = aws_vpc.example.id
+  cidr_block = "10.0.2.0/24"
+  # public_1 とは違うAZ
+  availability_zone       = "ap-northeast-1c"
+  map_public_ip_on_launch = true
 }
 
 # VPC-インターネット間で通信をできるようにする。
@@ -40,57 +47,95 @@ resource "aws_route" "public" {
 }
 
 # ルートテーブルとサブネットの関連付け。
-resource "aws_route_table_association" "public" {
+resource "aws_route_table_association" "public_0" {
+  subnet_id      = aws_subnet.public_0.id
   route_table_id = aws_route_table.public.id
-  subnet_id      = aws_subnet.public.id
 }
+
+resource "aws_route_table_association" "public_1" {
+  subnet_id      = aws_subnet.public_1.id
+  route_table_id = aws_route_table.public.id
+}
+
 
 # --------------------------------------
 # private network setting
 # --------------------------------------
 
 # プライベートサブネット。パブリックサブネットと異なるCIDRブロックを指定する。
-resource "aws_subnet" "private" {
-  vpc_id     = aws_vpc.example.id
-  cidr_block = "10.0.64.0/24"
+resource "aws_subnet" "private_0" {
+  vpc_id            = aws_vpc.example.id
+  cidr_block        = "10.0.65.0/24"
+  availability_zone = "ap-northeast-1a"
   # Specify true to indicate that instances launched into the subnet should be assigned a public IP address.
   map_public_ip_on_launch = false
-  availability_zone       = "ap-northeast-1a"
 }
 
-resource "aws_route_table" "private" {
+resource "aws_subnet" "private_1" {
+  vpc_id                  = aws_vpc.example.id
+  cidr_block              = "10.0.66.0/24"
+  availability_zone       = "ap-northeast-1c"
+  map_public_ip_on_launch = false
+}
+
+# ルートテーブルもAZごとに作成する。
+resource "aws_route_table" "private_0" {
   vpc_id = aws_vpc.example.id
 }
 
-resource "aws_route_table_association" "private" {
-  subnet_id      = aws_subnet.private.id
-  route_table_id = aws_route_table.private.id
+resource "aws_route_table" "private_1" {
+  vpc_id = aws_vpc.example.id
+}
+
+resource "aws_route_table_association" "private_0" {
+  subnet_id      = aws_subnet.private_0.id
+  route_table_id = aws_route_table.private_0.id
+}
+
+resource "aws_route_table_association" "private_1" {
+  subnet_id      = aws_subnet.private_1.id
+  route_table_id = aws_route_table.private_1.id
 }
 
 # NATゲートウェイ。プライベートネットワークからインターネットにアクセスする用。
 
 # NATゲートウェイを利用するために必要なEIP（Elastic IP Address）
 # これを使うと、通常起動するたびに動的に変わるIPを固定できる。
-resource "aws_eip" "nat_gateway" {
-  vpc = true
-  depends_on = [
-    aws_internet_gateway.example
-  ]
+resource "aws_eip" "nat_gateway_0" {
+  vpc        = true
+  depends_on = [aws_internet_gateway.example]
 }
 
-resource "aws_nat_gateway" "example" {
-  allocation_id = aws_eip.nat_gateway.id
+resource "aws_eip" "nat_gateway_1" {
+  vpc        = true
+  depends_on = [aws_internet_gateway.example]
+}
+
+# NATゲートウェイも冗長化しておく
+resource "aws_nat_gateway" "nat_gateway_0" {
+  allocation_id = aws_eip.nat_gateway_0.id
+  subnet_id     = aws_subnet.public_0.id
+  depends_on    = [aws_internet_gateway.example]
+}
+
+resource "aws_nat_gateway" "nat_gateway_1" {
+  allocation_id = aws_eip.nat_gateway_1.id
   # NATゲートウェイはパブリックサブネットに配置する。
-  subnet_id     = aws_subnet.public.id
+  subnet_id     = aws_subnet.public_1.id
   # depends_onを使うと明示的に依存関係を定義できる。
   # インターネットゲートウェイ作成後にEIPやNATゲートウェイを作成することを保証できる。
   depends_on    = [aws_internet_gateway.example]
 }
 
-resource "aws_route" "private" {
-  route_table_id         = aws_route_table.private.id
+resource "aws_route" "private_0" {
+  route_table_id         = aws_route_table.private_0.id
   # ネットワークゲートウェイのIDを設定する。aws_route.publicとは異なる。
-  nat_gateway_id         = aws_nat_gateway.example.id
+  nat_gateway_id         = aws_nat_gateway.nat_gateway_0.id
   destination_cidr_block = "0.0.0.0/0"
 }
 
+resource "aws_route" "private_1" {
+  route_table_id         = aws_route_table.private_1.id
+  nat_gateway_id         = aws_nat_gateway.nat_gateway_1.id
+  destination_cidr_block = "0.0.0.0/0"
+}
