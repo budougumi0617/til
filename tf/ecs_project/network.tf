@@ -68,6 +68,7 @@ resource "aws_route_table_association" "private" {
 }
 
 # NATゲートウェイ。プライベートネットワークからインターネットにアクセスする用。
+
 # NATゲートウェイを利用するために必要なEIP（Elastic IP Address）
 # これを使うと、通常起動するたびに動的に変わるIPを固定できる。
 resource "aws_eip" "nat_gateway" {
@@ -76,3 +77,20 @@ resource "aws_eip" "nat_gateway" {
     aws_internet_gateway.example
   ]
 }
+
+resource "aws_nat_gateway" "example" {
+  allocation_id = aws_eip.nat_gateway.id
+  # NATゲートウェイはパブリックサブネットに配置する。
+  subnet_id     = aws_subnet.public.id
+  # depends_onを使うと明示的に依存関係を定義できる。
+  # インターネットゲートウェイ作成後にEIPやNATゲートウェイを作成することを保証できる。
+  depends_on    = [aws_internet_gateway.example]
+}
+
+resource "aws_route" "private" {
+  route_table_id         = aws_route_table.private.id
+  # ネットワークゲートウェイのIDを設定する。aws_route.publicとは異なる。
+  nat_gateway_id         = aws_nat_gateway.example.id
+  destination_cidr_block = "0.0.0.0/0"
+}
+
