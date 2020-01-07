@@ -139,3 +139,31 @@ resource "aws_route" "private_1" {
   nat_gateway_id         = aws_nat_gateway.nat_gateway_1.id
   destination_cidr_block = "0.0.0.0/0"
 }
+
+# --------------------------------------
+# Route53 settings
+# --------------------------------------
+// 外部で作成されたホストゾーンを参照する場合はdataを使う
+data "aws_route53_zone" "budougumi0617" {
+  name = "budougumi0617.net"
+}
+
+// 新規作成する場合は次のように作る
+resource "aws_route53_zone" "test_budougumi0617" {
+  name = "test.budougumi0617.net"
+}
+
+
+resource "aws_route53_record" "example" {
+  zone_id = data.aws_route53_zone.budougumi0617.zone_id
+  name    = data.aws_route53_zone.budougumi0617.name
+  type    = "A" // AWS独自拡張のALIASレコード。ドメイン名→IPアドレスという流れで名前解決されるので速い。
+
+  alias {
+    name                   = aws_lb.example.dns_name
+    zone_id                = aws_lb.example.zone_id
+    evaluate_target_health = true
+  }
+}
+
+}
