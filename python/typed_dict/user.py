@@ -13,8 +13,8 @@ def show_user(user_dict: UserDict) -> NoReturn:
 
 
 user = UserDict(
-    user_name=20,
-)  # Parameter 'email' unfilled
+    user_name='John Due',
+)
 
 user2 = UserDict(
     user_name=20,  # Expected type 'str', got 'int' instead
