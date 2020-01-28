@@ -9,16 +9,29 @@ use Sandbox\Cast\ParentObject;
 final class CastObjectTest extends TestCase
 {
 
-    private function getProp(ParentObject $obj): string
+    private static function getProp(ParentObject $obj): string
     {
         $convert = fn($orig): CastObject => $orig;
         return $convert($obj)->prop;
     }
 
-    public function testCastBasicLit()
+    private static function getObject(string $prop): ParentObject
     {
-        $obj = new CastObject();
-        $casted = CastObject::castBasicLit($obj);
-        $this->assertSame($casted->prop, CastObject::class);
+        return new CastObject($prop);
+    }
+
+    public function testCast()
+    {
+        $data = 'Data';
+        $obj = self::getObject($data);
+
+        $cast = fn($orig): CastObject => $orig;
+        $casted = $cast($obj);
+
+        if ($obj instanceof CastObject) {
+            $casted = CastObject::cast($obj);
+        }
+
+        $this->assertSame($casted->prop, $data);
     }
 }

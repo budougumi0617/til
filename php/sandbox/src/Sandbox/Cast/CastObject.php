@@ -8,7 +8,12 @@ final class CastObject extends ParentObject
 {
     public string $prop;
 
-    public static function castBasicLit($obj): self
+    public function __construct(string $prop)
+    {
+        $this->prop = $prop;
+    }
+
+    public static function cast($obj): self
     {
         if (!($obj instanceof self)) {
             throw new InvalidArgumentException("{$obj} is not instance of CastObject");
