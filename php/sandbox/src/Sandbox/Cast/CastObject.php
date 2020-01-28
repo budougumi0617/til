@@ -4,8 +4,10 @@ namespace Sandbox\Cast;
 
 use InvalidArgumentException;
 
-final class CastObject
+final class CastObject extends ParentObject
 {
+    public string $prop;
+
     public static function castBasicLit($obj): self
     {
         if (!($obj instanceof self)) {
