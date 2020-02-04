@@ -8,3 +8,11 @@ resource "aws_kms_key" "example" {
   # 削除はせずに、is_enmabledをfalseにして無効化するくらいのほうがよい。
   deletion_window_in_days = 30
 }
+
+# 11.1.2 エイリアス
+# UUIDではわかりにくいので、人間にやさしい名前を付けておく。
+resource "aws_kms_alias" "example" {
+  # alias/というprefixが必須
+  name          = "alias/example"
+  target_key_id = aws_kms_key.example.key_id
+}
