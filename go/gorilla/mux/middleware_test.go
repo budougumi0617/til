@@ -1,7 +1,7 @@
 package mux
 
 import (
-	"fmt"
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -13,84 +13,100 @@ import (
 
 // Ref: https://gist.github.com/maoueh/624f108ee2f3e6ca0b496d6c2f75bcd7
 func TestMiddleware(t *testing.T) {
-	router := mux.NewRouter()
-
-	router.Use(middleware1)
-
-	wsRouter := router.PathPrefix("/ws").Subrouter()
-	wsRouter.Use(middleware2)
-	wsRouter.Use(middleware3)
-
-	wsRouter.HandleFunc("/sub", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("handling ws /sub")
-		w.Write([]byte("/sub (ws)"))
-	}))
-
-	chainRouter := router.PathPrefix("/chain").Subrouter()
-	chainRouter.HandleFunc("/sub1", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("handling chain /sub1")
-		w.Write([]byte("/sub1"))
-	}))
-	chainRouter.HandleFunc("/sub2", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("handling chain /sub2")
-		w.Write([]byte("/sub2"))
-	}))
-
-	restRouter := router.PathPrefix("/").Subrouter()
-	restRouter.Use(middleware3)
-
-	restRouter.HandleFunc("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("handling rest /")
-		w.Write([]byte("/ (rest)"))
-	}))
-
-	ts := httptest.NewServer(router)
-	defer ts.Close()
-	tryRequest(t, "GET", ts.URL+"/ws/sub", "/ (sub2)")
-	tryRequest(t, "GET", ts.URL+"/", "/ (sub2)")
-	tryRequest(t, "GET", ts.URL+"/chain/sub1", "/ (sub2)")
-}
-
-func tryRequest(t *testing.T, method, path, want string) {
-	cli := &http.Client{}
-	r, err := http.NewRequest(method, path, strings.NewReader(""))
-	if err != nil {
-		t.Errorf("NewRequest failed: %v", err)
+	h := func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("body"))
+	}
+	middleware1 := func(buf *bytes.Buffer) func(next http.Handler) http.Handler {
+		return func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				buf.Write([]byte("1"))
+				next.ServeHTTP(w, r)
+			})
+		}
 	}
 
-	resp, err := cli.Do(r)
-	if err != nil {
-		t.Errorf("Do failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Errorf("%s: reading body: %v", path, err)
+	middleware2 := func(buf *bytes.Buffer) func(next http.Handler) http.Handler {
+		return func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				buf.Write([]byte("2"))
+				next.ServeHTTP(w, r)
+			})
+		}
 	}
 
-	if string(body) != want {
-		t.Errorf("want %q, but got %q", want, body)
+	middleware3 := func(buf *bytes.Buffer) func(next http.Handler) http.Handler {
+		return func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				buf.Write([]byte("3"))
+				next.ServeHTTP(w, r)
+			})
+		}
 	}
-}
 
-func middleware1(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("middleware1")
-		next.ServeHTTP(w, r)
-	})
-}
+	tests := [...]struct {
+		name       string
+		router     func(*bytes.Buffer) *mux.Router
+		path, want string
+	}{
+		{
+			name: "simple",
+			path: "/sub/sub",
+			router: func(buf *bytes.Buffer) *mux.Router {
+				r := mux.NewRouter()
+				sub := r.PathPrefix("/sub").Subrouter()
+				sub.HandleFunc("/sub", h)
+				// あとからUseしても適応される。
+				sub.Use(middleware2(buf), middleware3(buf))
+				// rootのルーターは全体に適応される。
+				// ただし、後からでもsub routerより優先される。
+				r.Use(middleware1(buf))
+				return r
+			},
+			want: "123",
+		},
+		{
+			name: "AccessRoot",
+			path: "/",
+			router: func(buf *bytes.Buffer) *mux.Router {
+				r := mux.NewRouter()
+				r.HandleFunc("/", h)
+				r.Use(middleware1(buf))
+				sub := r.PathPrefix("/sub").Subrouter()
+				// 子routerのMiddlewareは親routerに適応されない。
+				sub.Use(middleware2(buf))
+				return r
+			},
+			want: "1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			ts := httptest.NewServer(tt.router(buf))
+			defer ts.Close()
+			cli := &http.Client{}
+			r, err := http.NewRequest("GET", ts.URL+tt.path, strings.NewReader(""))
+			if err != nil {
+				t.Errorf("NewRequest failed: %v", err)
+			}
 
-func middleware2(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("middleware2")
-		next.ServeHTTP(w, r)
-	})
-}
+			resp, err := cli.Do(r)
+			if err != nil {
+				t.Errorf("Do failed: %v", err)
+			}
+			defer resp.Body.Close()
 
-func middleware3(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("middleware3")
-		next.ServeHTTP(w, r)
-	})
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				t.Errorf("%s: reading body: %v", tt.path, err)
+			}
+
+			if string(body) != "body" {
+				t.Errorf("want 'body', but got %q", body)
+			}
+			if got := buf.String(); got != tt.want {
+				t.Errorf("want %q, but got %q", tt.want, got)
+			}
+		})
+	}
 }
