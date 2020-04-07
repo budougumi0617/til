@@ -5,6 +5,7 @@ from aiohttp.web_app import Application
 from aiohttp.web_request import Request
 from aiohttp.web_response import StreamResponse
 
+# https://docs.aiohttp.org/en/stable/web_advanced.html#contextvars-support
 USER_ID_CONTEXT = ContextVar('VAR', default='default')
 
 
