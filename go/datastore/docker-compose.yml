@@ -1,0 +1,17 @@
+version: "3"
+services:
+  datastore:
+    image: google/cloud-sdk:234.0.0
+    ports:
+      - "18081:8081"
+    command: gcloud --project=budougumi0617 beta emulators datastore start --host-port=0.0.0.0:8081 --no-store-on-disk --consistency=1.0
+  gui:
+    build:
+      context: ./docker/gui
+      dockerfile: Dockerfile
+    ports:
+      - "18082:8000"
+    depends_on:
+      - datastore
+    logging:
+      driver: none
