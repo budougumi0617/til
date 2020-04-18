@@ -35,3 +35,9 @@ func TestCloudDatastore_Put(t *testing.T) {
 
 	t.Logf("key: %s", key.String())
 }
+
+// TODO: 検索するテストを書く
+
+// TODO: 削除するテストを書く
+
+// TODO: インターフェイスごしのテストを書く
