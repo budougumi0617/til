@@ -109,7 +109,7 @@ func TestBoom_PutAndGetAll(t *testing.T) {
 		t.Fatalf("fromClient failed: %v", err)
 	}
 	defer client.Close()
-	// defer cleanUp()
+	defer cleanUp()
 
 	bm := boom.FromClient(ctx, client)
 	p := &Post{
@@ -140,7 +140,52 @@ func TestBoom_PutAndGetAll(t *testing.T) {
 	}
 }
 
-// TODO: 検索するテストを書く
+func TestBoom_GetByName(t *testing.T) {
+	err := os.Setenv("DATASTORE_EMULATOR_HOST", "localhost:18081")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	cli, _ := datastore.NewClient(ctx, "budougumi0617")
+	client, err := clouddatastore.FromClient(ctx, cli)
+	if err != nil {
+		t.Fatalf("fromClient failed: %v", err)
+	}
+	defer client.Close()
+	defer cleanUp()
+
+	bm := boom.FromClient(ctx, client)
+	ps := []*Post{
+		{Title: "MyTitle", Body: "blue", EntryAt: time.Now()},
+		{Title: "YourTitle", Body: "red", EntryAt: time.Now()},
+		{Title: "MyTitle", Body: "blue", EntryAt: time.Now()},
+		{Title: "YourTitle", Body: "green", EntryAt: time.Now()},
+		{Title: "MyTitle", Body: "red", EntryAt: time.Now()},
+	}
+
+	if _, err := bm.PutMulti(ps); err != nil {
+		t.Fatalf("bm.Put failed: %v", err)
+	}
+	var dst []*Post
+	// https://cloud.google.com/datastore/docs/concepts/queries
+	q := bm.Client.NewQuery(bm.Kind(ps[0])).Filter("Title =", string(ps[0].Title))
+	ks, err := bm.GetAll(q, &dst)
+	if err != nil {
+		t.Fatalf("bm.GetAll failed: %v", err)
+	}
+	if len(ks) != 3 {
+		t.Errorf("result count = %d", len(ks))
+	}
+
+	q = bm.Client.NewQuery(bm.Kind(ps[0])).Filter("Title =", string(ps[1].Title)).Filter("Body =", "green")
+	ks, err = bm.GetAll(q, &dst)
+	if err != nil {
+		t.Fatalf("bm.GetAll failed: %v", err)
+	}
+	if len(ks) != 1 {
+		t.Errorf("result count = %d", len(ks))
+	}
+}
 
 // TODO: 削除するテストを書く
 
