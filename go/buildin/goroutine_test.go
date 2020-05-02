@@ -8,6 +8,7 @@ import (
 )
 
 // 任意の数だけのgoroutineを起動するスニペット
+// https://play.golang.org/p/nuCkqqOfwWh
 func TestGoroutine_parallelSameAsProcsCount(t *testing.T) {
 	nums := [10]int{}
 	for i := 0; i < len(nums); i++ {
