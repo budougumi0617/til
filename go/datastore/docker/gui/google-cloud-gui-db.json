@@ -1,0 +1,10 @@
+{
+  "projects": [
+    {
+      "service": "datastore",
+      "projectId": "budougumi0617",
+      "apiEndpoint": "http://datastore:8081",
+      "id": "default"
+    }
+  ]
+}

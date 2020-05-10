@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	ghttp "net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -14,32 +13,32 @@ type internal struct {
 	called bool
 }
 
-func (i *internal) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
+func (i *internal) RoundTrip(req *http.Request) (*http.Response, error) {
 	i.called = true
-	base := ghttp.DefaultTransport
+	base := http.DefaultTransport
 	return base.RoundTrip(req)
 }
 
 type transport struct {
-	Base ghttp.RoundTripper
+	Base http.RoundTripper
 }
 
-func (t *transport) base() ghttp.RoundTripper {
+func (t *transport) base() http.RoundTripper {
 	if t.Base == nil {
-		return ghttp.DefaultTransport
+		return http.DefaultTransport
 	}
 	return t.Base
 }
 
 // RoundTrip is custom RoundTrip.
-func (t *transport) RoundTrip(req *ghttp.Request) (*ghttp.Response, error) {
+func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// do anything...
 	return t.base().RoundTrip(req)
 }
 
 func TestRoundTripper(t *testing.T) {
 	rt := &internal{}
-	cli := &ghttp.Client{
+	cli := &http.Client{
 		Transport: &transport{
 			Base: rt,
 		},
@@ -60,7 +59,7 @@ func TestRoundTripper(t *testing.T) {
 }
 
 // https://medium.com/@timakin/go-api-testing-173b97fb23ec
-func TryRequest(t *testing.T, desc, method, path, payload string, mux *ghttp.ServeMux, wantCode int, wantBody string, c *ghttp.Client) {
+func TryRequest(t *testing.T, desc, method, path, payload string, mux *http.ServeMux, wantCode int, wantBody string, c *http.Client) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 
