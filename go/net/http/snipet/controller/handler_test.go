@@ -6,6 +6,19 @@ import (
 	"testing"
 )
 
+var dummyData = map[string]int{
+	"budougumi0617": 33,
+	"john":          30,
+}
+
+type mock struct {
+	data map[string]int
+}
+
+func (m *mock) GetAge(name string) (int, error) {
+	return m.data[name], nil
+}
+
 func TestHelloHandler(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -20,16 +33,27 @@ func TestHelloHandler(t *testing.T) {
 				Age:  33,
 			},
 		},
+		{
+			name:  "oka",
+			query: "name=john",
+			want: HelloResponse{
+				Name: "john",
+				Age:  30,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest("GET", "http://example.com/hello?"+tt.query, nil)
 			w := httptest.NewRecorder()
-			HelloHandler(w, req)
+			m := &mock{}
+			m.data = dummyData
+			hello := &Hello{}
+			hello.repo = m
+			hello.HelloHandler(w, req)
 
 			resp := w.Result()
 
-			// {"name":"budougumi0617", "age":33}
 			var got HelloResponse
 			if err := json.NewDecoder(resp.Body).Decode(&got); err != nil {
 				t.Fatalf("failed decode %q", err)
