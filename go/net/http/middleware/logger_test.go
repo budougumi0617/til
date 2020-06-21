@@ -6,21 +6,23 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
 
 type rwWrapper struct {
-	rw  http.ResponseWriter
-	out io.Writer
+	rw http.ResponseWriter
+	mw io.Writer
 }
 
 func NewRwWrapper(rw http.ResponseWriter, buf io.Writer) *rwWrapper {
 	return &rwWrapper{
-		rw:  rw,
-		out: io.MultiWriter(rw, buf),
+		rw: rw,
+		mw: io.MultiWriter(rw, buf),
 	}
 }
 
@@ -29,7 +31,7 @@ func (r *rwWrapper) Header() http.Header {
 }
 
 func (r *rwWrapper) Write(i []byte) (int, error) {
-	return r.out.Write(i)
+	return r.mw.Write(i)
 }
 
 func (r *rwWrapper) WriteHeader(statusCode int) {
@@ -37,35 +39,24 @@ func (r *rwWrapper) WriteHeader(statusCode int) {
 }
 
 // 実際はloggerをDIするほうだろう。
-func NewLogger(out io.Writer) func(http.Handler) http.Handler {
+func NewLogger(l *log.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			rww := NewRwWrapper(w, out)
+			buf := &bytes.Buffer{}
+			rww := NewRwWrapper(w, buf)
 			next.ServeHTTP(rww, r)
-		})
-	}
-}
-
-func Test(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		// TODO: test cases
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-
+			l.Printf("%q", buf)
 		})
 	}
 }
 
 func TestLogger(t *testing.T) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprintln(w, "Hello, client")
+		_, _ = fmt.Fprint(w, "Hello, client")
 	})
 	buf := &bytes.Buffer{}
-	l := NewLogger(buf)
-	ts := httptest.NewServer(l(h))
+	l := log.New(buf, "", 0)
+	ts := httptest.NewServer(NewLogger(l)(h))
 	t.Cleanup(ts.Close)
 
 	cli := &http.Client{
@@ -87,7 +78,8 @@ func TestLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = resp.Body.Close()
-	if !bytes.Equal(want, buf.Bytes()) {
+	// ""などが混ざっているので、完全一致にはならない
+	if !strings.Contains(buf.String(), string(want)) {
 		t.Errorf("want %q, but %q", want, buf)
 	}
 }
