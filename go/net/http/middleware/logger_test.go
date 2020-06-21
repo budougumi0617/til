@@ -38,14 +38,13 @@ func (r *rwWrapper) WriteHeader(statusCode int) {
 	r.rw.WriteHeader(statusCode)
 }
 
-// 実際はloggerをDIするほうだろう。
 func NewLogger(l *log.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			buf := &bytes.Buffer{}
 			rww := NewRwWrapper(w, buf)
 			next.ServeHTTP(rww, r)
-			l.Printf("%q", buf)
+			l.Printf("%s", buf)
 		})
 	}
 }
@@ -78,7 +77,7 @@ func TestLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = resp.Body.Close()
-	// ""などが混ざっているので、完全一致にはならない
+	// \nが混ざっているので、完全一致にはならない
 	if !strings.Contains(buf.String(), string(want)) {
 		t.Errorf("want %q, but %q", want, buf)
 	}
