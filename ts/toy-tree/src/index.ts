@@ -1,8 +1,8 @@
-const meow = require('meow');
-const { read } = require('./read');
-const { format } = require('./format');
+import meow from "meow";
+import { read } from "./read";
+import { format } from "./format";
 
-exports.main = (argv, stdout, stderr) => {
+export const main = (argv, stdout, stderr) => {
   const cli = meow(
     `
     Usage
@@ -17,24 +17,24 @@ exports.main = (argv, stdout, stderr) => {
 `,
     {
       flags: {
-          level: {
-              type: 'number',
-              alias: 'L',
-              default: Infinity,
-          },
+        level: {
+          type: "number",
+          alias: "L",
+          default: Infinity,
+        },
       },
       argv,
-    },
+    }
   );
 
-  const dir = cli.input[0] || '.';
+  const dir = cli.input[0] || ".";
 
   const options = {
     level: cli.flags.level,
   };
 
   if (options.level < 1) {
-    stderr('Error: Invalid level, must be greater than 0.');
+    stderr("Error: Invalid level, must be greater than 0.");
     return 1;
   }
 

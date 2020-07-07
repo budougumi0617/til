@@ -7,6 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "jest"
   },
   "keywords": [],
@@ -17,11 +18,17 @@
     "meow": "^7.0.1"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.4",
     "@types/node": "^14.0.19",
     "jest": "^26.1.0",
+    "ts-jest": "^26.1.1",
     "typescript": "^3.9.6"
   },
   "jest": {
+    "preset": "ts-jest",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist"
+    ],
     "setupFiles": [
       "./jest.setup.js"
     ]

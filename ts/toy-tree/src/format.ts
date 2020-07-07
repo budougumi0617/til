@@ -1,25 +1,25 @@
-const chalk = require('chalk');
+const chalk = require("chalk");
 
 const displayName = (node) => {
   switch (node.type) {
-    case 'file':
+    case "file":
       return node.name;
-    case 'directory':
+    case "directory":
       return chalk.cyan(node.name);
   }
 };
 
 const formatEach = (nodes, prefix) => {
-  let result = '';
+  let result = "";
 
   nodes.forEach((node, index) => {
     const edge = index === nodes.length - 1;
-    const guide = prefix + (edge ? '`--' : '|--');
-    const next = prefix + (edge ? '  ' : '|  ');
+    const guide = prefix + (edge ? "`--" : "|--");
+    const next = prefix + (edge ? "  " : "|  ");
 
     result += `${guide} ${displayName(node)}\n`;
 
-    if (node.type === 'directory') {
+    if (node.type === "directory") {
       result += formatEach(node.children, next);
     }
   });
@@ -27,6 +27,6 @@ const formatEach = (nodes, prefix) => {
   return result;
 };
 
-exports.format = (node) => {
-  return `${node.name}\n${formatEach(node.children, '')}`;
+export const format = (node) => {
+  return `${node.name}\n${formatEach(node.children, "")}`;
 };
