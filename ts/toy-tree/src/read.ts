@@ -1,12 +1,13 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { TODO_any } from "./types";
 
 const readDirectory = (dir, depth, options) => {
   if (options.level < depth) {
     return [];
   }
   const dirents = fs.readdirSync(dir, { withFileTypes: true });
-  const nodes = [];
+  const nodes: TODO_any = [];
 
   dirents.forEach((dirent) => {
     if (dirent.name.startsWith(".")) {
