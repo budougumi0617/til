@@ -1,3 +1,4 @@
+// https://play.golang.org/p/Drl1FjauMeM
 package main
 
 import (
