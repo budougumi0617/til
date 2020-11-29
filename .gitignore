@@ -141,3 +141,8 @@ dmypy.json
 #  -------------- For Terraform ---------------
 terraform.tfstate
 terraform.tfstate.backup
+
+#  -------------- For Go ---------------
+*.trace
+*.test
+*.out
