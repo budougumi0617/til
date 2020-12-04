@@ -83,7 +83,7 @@ func myWorkerPool(tasks []task) {
 				select {
 				case t, ok := <-queue:
 					if !ok {
-						break
+						return
 					}
 					t()
 				}
@@ -95,5 +95,5 @@ func myWorkerPool(tasks []task) {
 		// fmt.Printf("enque! %d\n", i)
 	}
 	close(queue)
-	wg.Done()
+	wg.Wait()
 }
