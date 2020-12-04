@@ -1,5 +1,7 @@
 package benchstat
 
+import "sync"
+
 func fibonacci(n int) int {
 	if n < 2 {
 		return n
@@ -29,7 +31,13 @@ func genTasks() []task {
 }
 
 func execute(ts []task) {
+	var wg sync.WaitGroup
 	for _, t := range ts {
-		t()
+		wg.Add(1)
+		go func(t task) {
+			defer wg.Done()
+			t()
+		}(t)
 	}
+	wg.Wait()
 }
