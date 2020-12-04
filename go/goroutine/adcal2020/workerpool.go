@@ -2,34 +2,8 @@ package adcal2020
 
 var WorkerChannel = make(chan chan task)
 
-type Worker struct {
-	WorkerChannel chan chan task // used to communicate between dispatcher and workers
-	Channel       chan task
-	End           chan bool
-}
-
-// start worker
-func (w *Worker) Start() {
-	go func() {
-		for {
-			w.WorkerChannel <- w.Channel // when the worker is available place channel in queue
-			select {
-			case t := <-w.Channel: // worker has received job
-				t()
-			case <-w.End:
-				return
-			}
-		}
-	}()
-}
-
-// end worker
-func (w *Worker) Stop() {
-	w.End <- true
-}
-
 type Collector struct {
-	Work chan task // receives jobs to send to workers
+	Work chan task
 	End  chan bool // when receives bool stops workers
 }
 
@@ -43,6 +17,7 @@ func StartDispatcher(workerCount int) Collector {
 	for i < workerCount {
 		i++
 		worker := Worker{
+			ID:            i,
 			Channel:       make(chan task),
 			WorkerChannel: WorkerChannel,
 			End:           make(chan bool)}
@@ -59,12 +34,39 @@ func StartDispatcher(workerCount int) Collector {
 					w.Stop() // stop worker
 				}
 				return
-			case t := <-input:
+			case work := <-input:
 				worker := <-WorkerChannel // wait for available channel
-				worker <- t               // dispatch work to worker
+				worker <- work            // dispatch work to worker
 			}
 		}
 	}()
 
 	return collector
+}
+
+type Worker struct {
+	ID            int
+	WorkerChannel chan chan task // used to communicate between dispatcher and workers
+	Channel       chan task
+	End           chan bool
+}
+
+// start worker
+func (w *Worker) Start() {
+	go func() {
+		for {
+			w.WorkerChannel <- w.Channel // when the worker is available place channel in queue
+			select {
+			case job := <-w.Channel: // worker has received job
+				job()
+			case <-w.End:
+				return
+			}
+		}
+	}()
+}
+
+// end worker
+func (w *Worker) Stop() {
+	w.End <- true
 }
