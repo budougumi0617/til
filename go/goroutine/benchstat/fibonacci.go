@@ -1,6 +1,9 @@
 package benchstat
 
-import "sync"
+import (
+	"runtime"
+	"sync"
+)
 
 func fibonacci(n int) int {
 	if n < 2 {
@@ -31,13 +34,27 @@ func genTasks() []task {
 }
 
 func execute(ts []task) {
+	n := runtime.GOMAXPROCS(0)
+	queue := make(chan task, n)
 	var wg sync.WaitGroup
-	for _, t := range ts {
+	for i := 0; i < n; i++ {
 		wg.Add(1)
-		go func(t task) {
+		go func() {
 			defer wg.Done()
-			t()
-		}(t)
+			for {
+				select {
+				case t, ok := <-queue:
+					if !ok {
+						return
+					}
+					t()
+				}
+			}
+		}()
 	}
+	for _, t := range ts {
+		queue <- t
+	}
+	close(queue)
 	wg.Wait()
 }

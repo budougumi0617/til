@@ -1,0 +1,15 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/budougumi0617/til/go/goroutine/benchstat
+BenchmarkFibonacci-8   	       1	 124646403 ns/op	    3024 B/op	      19 allocs/op
+BenchmarkFibonacci-8   	       1	 124263724 ns/op	    3024 B/op	      22 allocs/op
+BenchmarkFibonacci-8   	       1	 122883538 ns/op	    3120 B/op	      23 allocs/op
+BenchmarkFibonacci-8   	       1	 122688372 ns/op	    4432 B/op	      24 allocs/op
+BenchmarkFibonacci-8   	       1	 122623780 ns/op	    3312 B/op	      22 allocs/op
+BenchmarkFibonacci-8   	       1	 123727724 ns/op	     336 B/op	      12 allocs/op
+BenchmarkFibonacci-8   	       1	 123562453 ns/op	    2544 B/op	      20 allocs/op
+BenchmarkFibonacci-8   	       1	 123299393 ns/op	    3120 B/op	      23 allocs/op
+BenchmarkFibonacci-8   	       1	 122401859 ns/op	     240 B/op	      11 allocs/op
+BenchmarkFibonacci-8   	       1	 123351706 ns/op	    5648 B/op	      26 allocs/op
+PASS
+ok  	github.com/budougumi0617/til/go/goroutine/benchstat	2.505s
