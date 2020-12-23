@@ -2,44 +2,76 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/tcnksm/go-httpstat"
 )
 
-const (
-	readTimeout  = 5
-	writeTimeout = 10
-	idleTimeout  = 120
-)
+var myt = &http.Transport{
+	Proxy: http.ProxyFromEnvironment,
+	DialContext: (&net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 3 * time.Second,
+		DualStack: true,
+	}).DialContext,
+	ForceAttemptHTTP2:     true,
+	MaxIdleConns:          100,
+	IdleConnTimeout:       90 * time.Second,
+	TLSHandshakeTimeout:   10 * time.Second,
+	ExpectContinueTimeout: 1 * time.Second,
+	// DisableKeepAlives:     true,
+}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	cli := &http.Client{
+		Transport: myt,
+	}
+	var result httpstat.Result
+	req, err := http.NewRequestWithContext(
+		r.Context(),
+		http.MethodGet, "https://budougumi0617.github.io",
+		nil,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	ctx := httpstat.WithHTTPStat(req.Context(), &result)
+	req = req.WithContext(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	res, err := cli.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if _, err := io.Copy(ioutil.Discard, res.Body); err != nil {
+		log.Fatal(err)
+	}
+	res.Body.Close()
+	result.End(time.Now())
+
 	w.Header().Set("Content-Type", "text/plain")
-	returnStatus := http.StatusOK
-	w.WriteHeader(returnStatus)
-	message := fmt.Sprintf("Hello %s!", r.UserAgent())
-	w.Write([]byte(message))
+	w.WriteHeader(http.StatusOK)
+	_, _ = fmt.Fprintf(w, "response code: %+v", result)
 }
 
 func main() {
 	serverAddress := ":8080"
-	l := log.New(os.Stdout, "sample-srv ", log.LstdFlags|log.Lshortfile)
-	m := mux.NewRouter()
-
-	m.HandleFunc("/", indexHandler)
-
 	srv := &http.Server{
-		Addr:         serverAddress,
-		ReadTimeout:  readTimeout * time.Second,
-		WriteTimeout: writeTimeout * time.Second,
-		IdleTimeout:  idleTimeout * time.Second,
-		Handler:      m,
+		Addr:    serverAddress,
+		Handler: http.HandlerFunc(indexHandler),
 	}
 
-	l.Println("server started")
 	if err := srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
