@@ -36,14 +36,22 @@ func Test_getConfigData(t *testing.T) {
 }
 
 func setup(envs map[string]string) func() {
-	pre := map[string]string{}
+	prevs := map[string]string{}
 	for k, v := range envs {
-		pre[k] = os.Getenv(k)
-		os.Setenv(k, v)
+		if prev, exist := os.LookupEnv(k); exist {
+			// exist == trueの時は何かしら環境変数が存在しているので記憶しておく
+			prevs[k] = prev
+		}
+		_ = os.Setenv(k, v)
 	}
 	return func() {
-		for k, v := range pre {
-			os.Setenv(k, v)
+		// 引数でもらって設定した環境変数を軒並みunsetしていく
+		for k := range envs {
+			_ = os.Unsetenv(k)
+			if v, ok := prevs[k]; ok {
+				// 以前の設定があったとき
+				_ = os.Setenv(k, v)
+			}
 		}
 	}
 }
