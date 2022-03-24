@@ -11,3 +11,20 @@ doc/service_b/0005-the-end.md
 $ adr generate graph | dot -Tsvg > graph.svg
 ```
 ![graph.svg](./graph.svg)
+
+テンプレートを追加
+
+```bash
+$ cat doc/service_b/template.md
+# TITLE
+Project specific template!
+# Status
+STATUS
+# Info
+ADR Number: NUMBER
+Date: DATE
+
+$ adr new Add Template
+doc/service_b/0006-add-template.md
+
+```
