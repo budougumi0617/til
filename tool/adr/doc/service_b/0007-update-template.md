@@ -1,10 +1,10 @@
-# NUMBER. TITLE
+# 7. Update Template
 
-Date: DATE
+Date: 2022-03-25
 
 ## Status
 <!-- Accepted（有効）, Superseded（別のADRで更新された）-->
-STATUS
+Accepted
 
 ## Context（背景）
 <!--

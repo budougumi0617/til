@@ -1,3 +1,4 @@
+# Operation logs
 ```bash
 $ adr new An idea that seems good at the time
 doc/service_b/0002-an-idea-that-seems-good-at-the-time.md
@@ -26,5 +27,8 @@ Date: DATE
 
 $ adr new Add Template
 doc/service_b/0006-add-template.md
-
+$ adr new Update Template
+doc/service_b/0007-update-template.md
 ```
+
+
