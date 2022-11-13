@@ -1,4 +1,4 @@
-.PHONY: help start stop mysql exec run
+.PHONY: help start start57 stop mysql exec run
 
 # 引数がないときはusageを表示する
 .DEFAULT_GOAL := help
@@ -6,6 +6,10 @@
 start: ## Start MySQL Conatainer
 	docker container run --rm -d -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
 		-p 43306:3306 --name mysql_til budougumi0617/mysql-sakila:5.7
+
+start57: ## Start MySQL Conatainer
+	docker container run --platform linux/x86_64 --rm -d -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+		-p 43306:3306 --name mysql_57 mysql:5.7
 
 stop: ## Terminate MySQL Container
 	docker container stop mysql_til
