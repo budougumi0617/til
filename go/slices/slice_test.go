@@ -34,3 +34,32 @@ func TestCopy(t *testing.T) {
 		})
 	}
 }
+
+func MyAppend(src []int) []int {
+	return append(src, 10)
+}
+
+func TestAppend(t *testing.T) {
+	t.Run("noarmal", func(t *testing.T) {
+		org := []int{1, 2, 3}
+		got := MyAppend(org[:2])
+		if want := []int{1, 2, 10}; !reflect.DeepEqual(org, want) {
+			t.Errorf("want %v, but got %v", want, org)
+		}
+		if want := []int{1, 2, 10}; !reflect.DeepEqual(got, want) {
+			t.Errorf("want %v, but got %v", want, got)
+		}
+	})
+	t.Run("完全スライス式", func(t *testing.T) {
+		org := []int{1, 2, 3}
+		got := MyAppend(org[:2:2])
+		// 元のスライスの3要素が変更されない
+		if want := []int{1, 2, 3}; !reflect.DeepEqual(org, want) {
+			t.Errorf("want %v, but got %v", want, org)
+		}
+		// 新しいバッファを使っている
+		if want := []int{1, 2, 10}; !reflect.DeepEqual(got, want) {
+			t.Errorf("want %v, but got %v", want, got)
+		}
+	})
+}
