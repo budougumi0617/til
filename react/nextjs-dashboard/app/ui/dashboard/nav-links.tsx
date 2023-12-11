@@ -1,7 +1,7 @@
 import {
-  UserGroupIcon,
-  HomeIcon,
   DocumentDuplicateIcon,
+  HomeIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
 // Map of links to display in the side navigation.
