@@ -55,3 +55,9 @@ export async function createInvoice(formData: FormData) {
   // リダイレクトさせる
   redirect('/dashboard/invoices');
 }
+
+export async function deleteInvoice(id: string) {
+  await sql`DELETE FROM invoices WHERE id = ${id}`;
+  revalidatePath('/dashboard/invoices');
+  // 削除ボタンは一覧ページで押すだけなので、リダイレクトはいらない
+}
