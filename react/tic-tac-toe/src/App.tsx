@@ -16,7 +16,9 @@ function Square({
 }
 
 export default function Board() {
-  const [squares, setSquares] = useState(Array<string | null>(9).fill(null));
+  const [squares, setSquares] = useState<Array<string | null>>(
+    Array<string | null>(9).fill(null),
+  );
   const handleClick = (i: number) => {
     const nextSquares = squares.slice();
     nextSquares[i] = "X";
