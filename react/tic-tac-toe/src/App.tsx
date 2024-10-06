@@ -68,8 +68,7 @@ export function Board({
   );
 }
 
-export default function Game() {
-  const [xIsNext, setXIsNext] = useState<boolean>(true);
+export default function Game(): JSX.Element {
   const [history, setHistory] = useState<Array<Array<string | null>>>([
     Array(9).fill(null),
   ]);
@@ -85,19 +84,21 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares: Array<string | null>, move: number) => {
-    let description;
-    if (move > 0) {
-      description = "Go to move #" + move;
-    } else {
-      description = "Go to game start";
-    }
-    return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
-    );
-  });
+  const moves = history.map(
+    (_: Array<string | null>, move: number): JSX.Element => {
+      let description;
+      if (move > 0) {
+        description = "Go to move #" + move;
+      } else {
+        description = "Go to game start";
+      }
+      return (
+        <li key={move}>
+          <button onClick={() => jumpTo(move)}>{description}</button>
+        </li>
+      );
+    },
+  );
 
   return (
     <div className="game">
