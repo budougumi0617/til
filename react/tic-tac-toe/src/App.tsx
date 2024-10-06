@@ -21,6 +21,11 @@ export default function Board() {
     Array<string | null>(9).fill(null),
   );
   const handleClick = (i: number) => {
+    if (squares[i]) {
+      // 入力済みのマス目をクリックした場合は何もしない
+      return;
+    }
+
     const nextSquares = squares.slice();
     if (xIsNext) {
       nextSquares[i] = "X";
