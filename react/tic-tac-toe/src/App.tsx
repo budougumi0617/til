@@ -24,6 +24,7 @@ export function Board({
   squares: Array<string | null>;
   onPlay: (nextSquares: Array<string | null>) => void;
 }): JSX.Element {
+
   const winner = calculateWinner(squares);
   let status: string;
   if (winner) {
